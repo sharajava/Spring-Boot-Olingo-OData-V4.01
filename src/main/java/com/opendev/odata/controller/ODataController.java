@@ -34,16 +34,11 @@ public class ODataController {
 
 	@Autowired
 	CsdlEdmProvider edmProvider;
+
+	private Storage storage = new Storage();
 	
 	@RequestMapping(value = "**")
 	public void process(HttpServletRequest request, HttpServletResponse response) {
-		HttpSession session = request.getSession(true);
-		Storage storage = (Storage) session.getAttribute(Storage.class.getName());
-		if (storage == null) {
-			storage = new Storage();
-			session.setAttribute(Storage.class.getName(), storage);
-		}
-
 		// create odata handler and configure it with EdmProvider and Processor
 		OData odata = OData.newInstance();
 		ServiceMetadata edm = odata.createServiceMetadata(new DemoEdmProvider(), new ArrayList<EdmxReference>());

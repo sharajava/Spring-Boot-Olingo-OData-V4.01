@@ -121,4 +121,23 @@ public class Storage {
             throw new ODataRuntimeException("Unable to create id for entity: " + entitySetName, e);
         }
     }
+
+    public Entity createEntityData(EdmEntitySet edmEntitySet, Entity requestEntity) {
+        List<Entity> entityCollection = null;
+        if(edmEntitySet.getName().equals(Constants.ES_PRODUCTS_NAME)){
+            entityCollection = productList;
+        }
+        entityCollection.add(requestEntity);
+        return requestEntity;
+    }
+
+    public void deleteEntityData(EdmEntitySet edmEntitySet, List<UriParameter> keyPredicates) throws ODataApplicationException {
+        Entity toBeDeletedEntity = null;
+        if(edmEntitySet.getName().equals(Constants.ES_PRODUCTS_NAME)){
+            toBeDeletedEntity = getProduct(edmEntitySet.getEntityType(), keyPredicates);
+        }
+        if (toBeDeletedEntity != null) {
+            productList.remove(toBeDeletedEntity);
+        }
+    }
 }

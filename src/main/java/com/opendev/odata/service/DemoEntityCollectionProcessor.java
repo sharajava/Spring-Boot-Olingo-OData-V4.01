@@ -88,13 +88,5 @@ public class DemoEntityCollectionProcessor implements EntityCollectionProcessor 
 		response.setStatusCode(HttpStatusCode.OK.getStatusCode());
 		response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
 	}
-	
-	private URI createId(String entitySetName, Object id) {
-	    try {
-	        return new URI(entitySetName + "(" + id + ")");
-	    } catch (URISyntaxException e) {
-	        throw new ODataRuntimeException("Unable to create id for entity: " + entitySetName, e);
-	    }
-	}
 
 }
