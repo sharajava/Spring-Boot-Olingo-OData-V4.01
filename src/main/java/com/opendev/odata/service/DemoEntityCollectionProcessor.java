@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import com.opendev.odata.data.Storage;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -37,11 +38,15 @@ import com.opendev.odata.util.Constants;
  * @author Subash
  * @since 2/28/2021
  */
-@Component
 public class DemoEntityCollectionProcessor implements EntityCollectionProcessor {
 
 	private OData odata;
 	private ServiceMetadata serviceMetadata;
+	private Storage storage;
+
+	public DemoEntityCollectionProcessor(Storage storage) {
+		this.storage = storage;
+	}
 
 	public void init(OData odata, ServiceMetadata serviceMetadata) {
 		this.odata = odata;
@@ -61,7 +66,7 @@ public class DemoEntityCollectionProcessor implements EntityCollectionProcessor 
 
 		// 2nd: fetch the data from backend for this requested EntitySetName
 		// it has to be delivered as EntitySet object
-		EntityCollection entitySet = getData(edmEntitySet);
+		EntityCollection entitySet = storage.readEntitySetData(edmEntitySet);
 
 		// 3rd: create a serializer based on the requested format (json)
 		ODataSerializer serializer = odata.createSerializer(responseFormat);
@@ -82,43 +87,6 @@ public class DemoEntityCollectionProcessor implements EntityCollectionProcessor 
 		response.setContent(serializedContent);
 		response.setStatusCode(HttpStatusCode.OK.getStatusCode());
 		response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
-	}
-
-	private EntityCollection getData(EdmEntitySet edmEntitySet) {
-
-		EntityCollection productsCollection = new EntityCollection();
-		// check for which EdmEntitySet the data is requested
-		if (Constants.ES_PRODUCTS_NAME.equals(edmEntitySet.getName())) {
-			List<Entity> productList = productsCollection.getEntities();
-
-			String stringDataType = "String";
-			String description = "Description";
-			String products = "Products";
-			
-			// add some sample product entities
-			final Entity e1 = new Entity().addProperty(new Property("int", "ID", ValueType.PRIMITIVE, 1))
-					.addProperty(new Property(stringDataType, "Name", ValueType.PRIMITIVE, "Notebook Basic 15"))
-					.addProperty(new Property(stringDataType, description, ValueType.PRIMITIVE,
-							"Notebook Basic, 1.7GHz - 15 XGA - 1024MB DDR2 SDRAM - 40GB"));
-			e1.setId(createId(products, 1));
-			productList.add(e1);
-
-			final Entity e2 = new Entity().addProperty(new Property("int", "ID", ValueType.PRIMITIVE, 2))
-					.addProperty(new Property(stringDataType, "Name", ValueType.PRIMITIVE, "1UMTS PDA"))
-					.addProperty(new Property(stringDataType, description, ValueType.PRIMITIVE,
-							"Ultrafast 3G UMTS/HSDPA Pocket PC, supports GSM network"));
-			e2.setId(createId(products, 1));
-			productList.add(e2);
-
-			final Entity e3 = new Entity().addProperty(new Property("int", "ID", ValueType.PRIMITIVE, 3))
-					.addProperty(new Property(stringDataType, "Name", ValueType.PRIMITIVE, "Ergo Screen"))
-					.addProperty(new Property(stringDataType, description, ValueType.PRIMITIVE,
-							"19 Optimum Resolution 1024 x 768 @ 85Hz, resolution 1280 x 960"));
-			e3.setId(createId(products, 1));
-			productList.add(e3);
-		}
-
-		return productsCollection;
 	}
 	
 	private URI createId(String entitySetName, Object id) {
